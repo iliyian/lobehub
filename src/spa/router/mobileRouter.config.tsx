@@ -33,6 +33,13 @@ export const mobileRoutes: RouteObject[] = [
               },
               {
                 element: dynamicElement(
+                  () => import('@/routes/(main)/agent/topics'),
+                  'Mobile > Chat > Topics',
+                ),
+                path: 'topics',
+              },
+              {
+                element: dynamicElement(
                   () => import('@/routes/(mobile)/chat'),
                   'Mobile > Chat > Topic',
                 ),
