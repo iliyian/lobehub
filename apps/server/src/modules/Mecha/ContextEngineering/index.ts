@@ -58,6 +58,7 @@ export const toContextSnapshot = ({
   userMemory,
   userTimezone,
   workspaceContext,
+  zeroSystemPrompt,
 }: ServerMessagesEngineParams): ContextSnapshot => ({
   agent: {
     documentChanges: agentDocumentChanges,
@@ -95,6 +96,7 @@ export const toContextSnapshot = ({
     historySummary,
     initialContext,
     messages,
+    zeroSystemPrompt,
   },
   step: {
     agentAccountContext,

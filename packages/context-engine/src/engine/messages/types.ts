@@ -275,6 +275,15 @@ export interface MessagesEngineParams {
   /** System role */
   systemRole?: string;
   /**
+   * Zero system prompt (pure mode).
+   *
+   * When true the engine skips the whole system-message / context-injection
+   * half of the pipeline: no persona, date, model info, knowledge, memory,
+   * tool or skill instructions are injected. Only the real conversation rows
+   * are converted and sent. All existing `system` rows are dropped too.
+   */
+  zeroSystemPrompt?: boolean;
+  /**
    * The agent's identity (personal `name` + role `title`), appended to the
    * system message so the model can introduce itself by the name the user gave
    * it. Ignored in group chat, where GroupContextInjector owns identity.

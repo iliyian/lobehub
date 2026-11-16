@@ -117,6 +117,11 @@ interface ContextEngineeringContext {
   tools?: string[];
   /** Topic ID for plan/todo context injection */
   topicId?: string;
+  /**
+   * Zero system prompt (pure mode). Skips every system-message and context
+   * injector so only the real conversation rows are sent.
+   */
+  zeroSystemPrompt?: boolean;
 }
 
 // REVIEW: Maybe we can constrain identity, preference, exp to reorder or trim the context instead of passing everything in
@@ -144,6 +149,7 @@ export const contextEngineering = async ({
   stepContext,
   topicId,
   memoryContext,
+  zeroSystemPrompt,
 }: ContextEngineeringContext): Promise<OpenAIChatMessage[]> => {
   log('tools: %o', tools);
 
@@ -361,6 +367,7 @@ export const contextEngineering = async ({
       initialContext,
       messages,
       stepContext,
+      zeroSystemPrompt,
     },
     step: facts.step,
     tools: {

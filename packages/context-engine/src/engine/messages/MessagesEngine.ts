@@ -130,7 +130,12 @@ export class MessagesEngine {
    */
   async process(): Promise<MessagesEngineResult> {
     const pipeline = this.buildPipeline();
-    const result = await pipeline.process({ messages: this.params.messages });
+    // Pure mode promises "zero system prompt": a system row that arrived with
+    // the conversation (e.g. a raw imported payload) must not survive either.
+    const inputMessages = this.params.zeroSystemPrompt
+      ? this.params.messages.filter((message) => message.role !== 'system')
+      : this.params.messages;
+    const result = await pipeline.process({ messages: inputMessages });
 
     return {
       messages: result.messages as OpenAIChatMessage[],
@@ -161,6 +166,13 @@ export class MessagesEngine {
    * Build the list of processors based on configuration
    */
   private buildProcessors(): ContextProcessor[] {
+    // Pure mode: skip every injector. The pipeline below only converts the
+    // real conversation rows, so no persona / date / model / knowledge /
+    // memory / tool / skill instruction can reach the model.
+    if (this.params.zeroSystemPrompt) {
+      return this.buildPureProcessors();
+    }
+
     const {
       model,
       modelDisplayName,
@@ -672,6 +684,92 @@ export class MessagesEngine {
       // Force finish summary (when maxSteps exceeded)
       new ForceFinishSummaryInjector({ enabled: !!forceFinish }),
       // Message cleanup (final step)
+      new MessageCleanupProcessor(),
+    ];
+  }
+
+  /**
+   * Pure-mode pipeline: structural conversion only.
+   *
+   * Deliberately contains no `providers/` (system-message or context
+   * injectors) and no placeholder/template/reaction processors that rewrite
+   * user-visible text. The output is the conversation as-is: user, assistant
+   * and tool rows, with the same multimodal / tool-call normalization every
+   * provider expects.
+   */
+  private buildPureProcessors(): ContextProcessor[] {
+    const {
+      model,
+      provider,
+      capabilities,
+      enableHistoryCount,
+      historyCount,
+      fileContext,
+      toolsConfig,
+      agentGroup,
+    } = this.params;
+
+    const toolIds = toolsConfig?.tools || [];
+    const canUseFC = capabilities?.isCanUseFC || (() => true);
+    const canReadAttachment = toolIds.includes(ATTACHMENTS_TOOL_ID) && !!canUseFC(model, provider);
+
+    const isAgentGroupEnabled = !!agentGroup?.agentMap && Object.keys(agentGroup.agentMap).length > 0;
+
+    return [
+      new PlaceholderMessageFilterProcessor(),
+      new HistoryTruncateProcessor({ enableHistoryCount, historyCount }),
+      // Structural flattening of group / council / task containers into plain
+      // chat turns. These never add prompt text; they only make every row a
+      // valid role for the provider.
+      new SubAgentResultMessageProcessor(),
+      new AgentCouncilFlattenProcessor(),
+      new GroupMessageFlattenProcessor(),
+      new TasksFlattenProcessor(),
+      new TaskMessageProcessor(),
+      new PlaceholderMessageFilterProcessor(),
+      new VerifyMessageProcessor(),
+      new TaskCallbackMessageProcessor(),
+      new SupervisorRoleRestoreProcessor(),
+      new CompressedGroupRoleTransformProcessor(),
+      ...(isAgentGroupEnabled && agentGroup?.agentMap && agentGroup.currentAgentId
+        ? [
+            new GroupOrchestrationFilterProcessor({
+              agentMap: Object.fromEntries(
+                Object.entries(agentGroup.agentMap).map(([id, info]) => [id, { role: info.role }]),
+              ),
+              currentAgentId: agentGroup.currentAgentId,
+              enabled: agentGroup.currentAgentRole !== 'supervisor',
+            }),
+          ]
+        : []),
+      ...(isAgentGroupEnabled && agentGroup?.currentAgentId
+        ? [
+            new GroupRoleTransformProcessor({
+              agentMap: agentGroup.agentMap!,
+              currentAgentId: agentGroup.currentAgentId,
+            }),
+          ]
+        : []),
+      // Multimodal encoding + canonical tool-call normalization.
+      new MessageContentProcessor({
+        canReadAttachment,
+        fileContext: fileContext || { enabled: true, includeFileUrl: true },
+        isCanUseAudio: capabilities?.isCanUseAudio || (() => false),
+        isCanUseVideo: capabilities?.isCanUseVideo || (() => false),
+        isCanUseVision: capabilities?.isCanUseVision || (() => true),
+        model,
+        provider,
+      }),
+      new ToolCallProcessor({
+        genToolCallingName: this.toolNameResolver.generate.bind(this.toolNameResolver),
+        isCanUseFC: capabilities?.isCanUseFC || (() => true),
+        model,
+        provider,
+      }),
+      new DisabledToolCallFilter({
+        disabledToolIdentifiers: toolsConfig?.disabledToolIdentifiers,
+      }),
+      new ToolMessageReorder(),
       new MessageCleanupProcessor(),
     ];
   }

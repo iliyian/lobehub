@@ -94,6 +94,16 @@ export interface LobeAgentChatConfig extends AgentMemoryChatConfig, AgentSelfIte
    * Whether to enable streaming output
    */
   enableStreaming?: boolean;
+  /**
+   * Zero system prompt (pure mode).
+   *
+   * When enabled the request carries no system message and no injected context
+   * at all: agent persona, system date, model info, knowledge, memory, tool
+   * manifests and skills are all skipped. Only the real user / assistant /
+   * tool conversation rows are sent, so the model's raw behavior can be
+   * observed without LobeHub's prompt scaffolding.
+   */
+  enableZeroSystemPrompt?: boolean;
   glm5_2ReasoningEffort?: 'high' | 'max';
   glm5_3ReasoningEffort?: 'low' | 'high' | 'max';
   gpt5_1ReasoningEffort?: 'none' | 'low' | 'medium' | 'high';
@@ -262,6 +272,7 @@ export const AgentChatConfigSchema = z
     enableReasoningEffort: z.boolean().optional(),
     enableStreaming: z.boolean().optional(),
     enableStaleToolResultTrim: z.boolean().optional(),
+    enableZeroSystemPrompt: z.boolean().optional(),
     gpt5ReasoningEffort: z.enum(['minimal', 'low', 'medium', 'high']).optional(),
     gpt5_1ReasoningEffort: z.enum(['none', 'low', 'medium', 'high']).optional(),
     gpt5_2ProReasoningEffort: z.enum(['medium', 'high', 'xhigh']).optional(),

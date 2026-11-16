@@ -183,8 +183,21 @@ class ChatService {
       tools,
     } = resolvedAgentConfig;
 
-    // Get search config with agentId for agent-specific settings
-    const searchConfig = getSearchConfig(payload.model, payload.provider!, targetAgentId);
+    // Pure mode: no system message, no injected context, no tools/skills.
+    // The conversation is sent as-is so the model's raw behavior is visible.
+    const pureMode = chatConfig.enableZeroSystemPrompt === true;
+
+    // Get search config with agentId for agent-specific settings. Pure mode
+    // never enables search: the search prompt is injected context.
+    const searchConfig = pureMode
+      ? {
+          enabledSearch: false,
+          isModelHasBuiltinSearch: false,
+          isProviderHasBuiltinSearch: false,
+          useApplicationBuiltinSearchTool: false,
+          useModelSearch: false,
+        }
+      : getSearchConfig(payload.model, payload.provider!, targetAgentId);
 
     // =================== 1.1 process user memories =================== //
 
@@ -235,7 +248,7 @@ class ChatService {
       enableAgentMode: modelParams.enableAgentMode,
       // Use raw chatConfig values, not selectors with business logic that may force false
       enableHistoryCount: chatConfig.enableHistoryCount,
-      enableUserMemories,
+      enableUserMemories: enableUserMemories && !pureMode,
       groupId,
       additionalContexts,
       attachmentPreviewFileIds,
@@ -243,17 +256,18 @@ class ChatService {
       historyCount: modelParams.historyCount,
       // Page editor context from agent runtime
       initialContext: options?.initialContext,
-      inputTemplate: chatConfig.inputTemplate,
-      manifests: enabledManifests,
+      inputTemplate: pureMode ? undefined : chatConfig.inputTemplate,
+      manifests: pureMode ? [] : enabledManifests,
       messages: messagesForContext,
       model: payload.model,
-      plugins,
+      plugins: pureMode ? [] : plugins,
       provider: payload.provider!,
       sessionId: options?.trace?.sessionId,
       stepContext: options?.stepContext,
-      systemRole: agentConfig.systemRole,
-      tools: enabledToolIds,
+      systemRole: pureMode ? undefined : agentConfig.systemRole,
+      tools: pureMode ? [] : enabledToolIds,
       topicId,
+      zeroSystemPrompt: pureMode,
       memoryContext: {
         effort: effectiveMemoryEffort,
       },
@@ -265,10 +279,10 @@ class ChatService {
         ...params,
         ...modelParams.resolvedExtendParams,
         // Always present on the browser payload, even when unset.
-        enabledSearch: modelParams.resolvedExtendParams?.enabledSearch,
+        enabledSearch: pureMode ? false : modelParams.resolvedExtendParams?.enabledSearch,
         messages: modelMessages,
         stream: modelParams.stream,
-        tools,
+        tools: pureMode ? undefined : tools,
       },
       preserveThinking: modelParams.preserveThinkingForPayload,
       replayAssistantReasoning: modelParams.shouldReplayAssistantReasoning,

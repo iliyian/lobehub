@@ -145,6 +145,12 @@ export interface ServerMessagesEngineParams {
   enableHistoryCount?: boolean;
 
   /**
+   * Zero system prompt (pure mode). Skips every system-message and context
+   * injector so only the real conversation rows are sent to the model.
+   */
+  zeroSystemPrompt?: boolean;
+
+  /**
    * Whether stale tool results are replaced with short placeholders in the
    * model context. Undefined / true → trimming enabled (default).
    */

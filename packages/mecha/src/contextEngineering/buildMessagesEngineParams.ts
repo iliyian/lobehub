@@ -69,6 +69,7 @@ export const buildMessagesEngineParams = (snapshot: ContextSnapshot): MessagesEn
     enableMcpAppContext: run.enableMcpAppContext,
     expertise: run.expertise,
     forceFinish: run.forceFinish,
+    zeroSystemPrompt: run.zeroSystemPrompt,
     formatHistorySummary: run.formatHistorySummary,
     historySummary: run.historySummary,
     initialContext: run.initialContext,

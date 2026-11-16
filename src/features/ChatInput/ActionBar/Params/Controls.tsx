@@ -458,6 +458,7 @@ const Controls = ({ variant = 'popover' }: ControlsProps) => {
   const enableAutoScrollOnStreaming = form.getValue('chatConfig.enableAutoScrollOnStreaming');
   const enableStreaming = form.getValue('chatConfig.enableStreaming');
   const enableStaleToolResultTrim = form.getValue('chatConfig.enableStaleToolResultTrim');
+  const enableZeroSystemPrompt = form.getValue('chatConfig.enableZeroSystemPrompt');
   const enableFollowUpChips = form.getValue('chatConfig.enableFollowUpChips');
   const globalFollowUp = useUserStore(systemAgentSelectors.followUpAction, isEqual);
   const globalFollowUpReady =
@@ -766,6 +767,21 @@ const Controls = ({ variant = 'popover' }: ControlsProps) => {
                   size={'small'}
                   onChange={(checked) => {
                     handleFieldChange('chatConfig.enableContextCompression', checked);
+                  }}
+                />
+              }
+            />
+            <ControlRow
+              tag="zeroSystemPrompt"
+              title={t('settingChat.enableZeroSystemPrompt.title')}
+              tooltip={t('settingChat.enableZeroSystemPrompt.desc')}
+              action={
+                <Switch
+                  checked={Boolean(enableZeroSystemPrompt)}
+                  disabled={!canCreate}
+                  size={'small'}
+                  onChange={(checked) => {
+                    handleFieldChange('chatConfig.enableZeroSystemPrompt', checked);
                   }}
                 />
               }

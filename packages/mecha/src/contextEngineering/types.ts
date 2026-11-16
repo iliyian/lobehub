@@ -91,6 +91,11 @@ export interface ContextRunSnapshot {
   initialContext?: RuntimeInitialContext;
   messages: UIChatMessage[];
   stepContext?: RuntimeStepContext;
+  /**
+   * Zero system prompt (pure mode): the engine skips every system-message and
+   * context injector, sending only the real conversation rows.
+   */
+  zeroSystemPrompt?: boolean;
 }
 
 /**
