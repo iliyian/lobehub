@@ -93,6 +93,14 @@ const ATTACHMENTS_TOOL_ID = 'lobe-attachments';
 const AGENT_DOCUMENTS_TOOL_ID = 'lobe-agent-documents';
 
 /**
+ * Pure mode keeps only the agent's own instruction. A reply-language line is
+ * product scaffolding added by the host resolver (and some builtin agents),
+ * so strip it even when a host forgot to omit it.
+ */
+const stripReplyLanguageInstruction = (systemRole?: string): string | undefined =>
+  systemRole?.replaceAll(/^\s*Preferred reply language:.*(?:\r?\n)?/gm, '').trim();
+
+/**
  * MessagesEngine - High-level message processing engine
  *
  * This is a convenience wrapper around ContextEngine that provides
@@ -722,7 +730,9 @@ export class MessagesEngine {
       // configured agent instruction is the user's own prompt, not injected
       // scaffolding, so it is still sent. An empty / whitespace-only role is
       // skipped by the injector itself.
-      new SystemRoleInjector({ systemRole: this.params.systemRole }),
+      new SystemRoleInjector({
+        systemRole: stripReplyLanguageInstruction(this.params.systemRole),
+      }),
       // Structural flattening of group / council / task containers into plain
       // chat turns. These never add prompt text; they only make every row a
       // valid role for the provider.

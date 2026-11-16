@@ -382,11 +382,14 @@ export const resolveAgentConfig = (
     // Regular agent - use provided plugins if available, fallback to agent's plugins
     const finalPlugins = plugins && plugins.length > 0 ? plugins : basePlugins;
 
-    // Inject response language preference into system role for regular agents
+    // Inject response language preference into system role for regular agents.
+    // Pure mode keeps only the user's own instruction, so the product-added
+    // language line must not be appended there.
     const { userLocale } = snapshot;
-    const localeInstruction = userLocale
-      ? `Preferred reply language: ${userLocale}. Use this language unless the user explicitly asks to switch.`
-      : '';
+    const localeInstruction =
+      userLocale && chatConfig.enableZeroSystemPrompt !== true
+        ? `Preferred reply language: ${userLocale}. Use this language unless the user explicitly asks to switch.`
+        : '';
     const systemRoleWithLocale = localeInstruction
       ? agentConfig.systemRole
         ? `${agentConfig.systemRole}\n\n${localeInstruction}`

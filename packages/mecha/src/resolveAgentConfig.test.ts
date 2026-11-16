@@ -32,6 +32,18 @@ describe('resolveAgentConfig without a host', () => {
     expect(resolved.agentConfig.systemRole).toContain('zh-CN');
   });
 
+  it('does not append the reply-language instruction in pure mode', () => {
+    const resolved = resolveAgentConfig(
+      { agentId: 'agt_1' },
+      snapshot({
+        chatConfig: { enableZeroSystemPrompt: true } as never,
+        userLocale: 'zh-CN',
+      }),
+    );
+
+    expect(resolved.agentConfig.systemRole).toBe('You are helpful.');
+  });
+
   it('leaves the system role alone when no locale is supplied', () => {
     const resolved = resolveAgentConfig({ agentId: 'agt_1' }, snapshot());
 

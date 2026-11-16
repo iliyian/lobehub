@@ -67,6 +67,21 @@ describe('MessagesEngine zeroSystemPrompt (pure mode)', () => {
     expect(system.content).not.toContain('<tools');
   });
 
+  it('strips the product reply-language line from the manual instruction', async () => {
+    const result = await new MessagesEngine(
+      richParams({
+        systemRole:
+          'You are a secret persona.\n\nPreferred reply language: zh-CN. Use this language unless the user explicitly asks to switch.',
+        zeroSystemPrompt: true,
+      }),
+    ).process();
+
+    expect(result.messages[0]).toEqual({
+      content: 'You are a secret persona.',
+      role: 'system',
+    });
+  });
+
   it('sends no system message when no manual instruction is configured', async () => {
     const result = await new MessagesEngine(
       richParams({ systemRole: undefined, zeroSystemPrompt: true }),
