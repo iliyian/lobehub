@@ -1705,7 +1705,7 @@
   "settingChat.enableHistoryCount.unlimited": "不限历史消息数",
   "settingChat.enableStaleToolResultTrim.desc": "将已被覆盖的文件读取、过期的浏览器快照与旧命令输出替换为简短占位符，以节省上下文 token。若助手需要完整的历史工具输出可关闭。",
   "settingChat.enableStaleToolResultTrim.title": "裁剪过期工具结果",
-  "settingChat.enableZeroSystemPrompt.desc": "彻底关闭系统提示词：不发送角色设定、日期、模型信息、知识库、记忆、工具与技能说明，仅发送真实的对话消息。开启后工具与联网搜索也会停用。",
+  "settingChat.enableZeroSystemPrompt.desc": "关闭自动注入的系统提示词：日期、模型信息、知识库、记忆、工具与技能说明全部跳过，仅发送真实的对话消息。Agent 手动设置的指令（System Prompt）仍会保留并注入。开启后工具与联网搜索也会停用。",
   "settingChat.enableZeroSystemPrompt.title": "零系统提示词（纯净模式）",
   "settingChat.enableStreaming.desc": "启用流式输出以实时显示响应。禁用后仅显示完整响应。",
   "settingChat.enableStreaming.title": "启用流式输出",

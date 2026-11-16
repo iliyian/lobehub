@@ -264,7 +264,8 @@ class ChatService {
       provider: payload.provider!,
       sessionId: options?.trace?.sessionId,
       stepContext: options?.stepContext,
-      systemRole: pureMode ? undefined : agentConfig.systemRole,
+      // Pure mode keeps only the agent's manually configured instruction.
+      systemRole: agentConfig.systemRole,
       tools: pureMode ? [] : enabledToolIds,
       topicId,
       zeroSystemPrompt: pureMode,

@@ -718,6 +718,11 @@ export class MessagesEngine {
     return [
       new PlaceholderMessageFilterProcessor(),
       new HistoryTruncateProcessor({ enableHistoryCount, historyCount }),
+      // The one deliberate exception to "zero system prompt": a manually
+      // configured agent instruction is the user's own prompt, not injected
+      // scaffolding, so it is still sent. An empty / whitespace-only role is
+      // skipped by the injector itself.
+      new SystemRoleInjector({ systemRole: this.params.systemRole }),
       // Structural flattening of group / council / task containers into plain
       // chat turns. These never add prompt text; they only make every row a
       // valid role for the provider.

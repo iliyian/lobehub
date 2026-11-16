@@ -45,16 +45,37 @@ const richParams = (overrides?: Partial<MessagesEngineParams>): MessagesEnginePa
 });
 
 describe('MessagesEngine zeroSystemPrompt (pure mode)', () => {
-  it('sends only the real conversation rows — no system prompt, no injected context', async () => {
+  it('keeps the manual system role but drops every other injection', async () => {
     const result = await new MessagesEngine(
       richParams({ zeroSystemPrompt: true }),
+    ).process();
+
+    expect(result.messages).toEqual([
+      { content: 'You are a secret persona.', role: 'system' },
+      { content: 'Hello', role: 'user' },
+      { content: 'Hi there!', role: 'assistant' },
+    ]);
+
+    const system = result.messages[0];
+    expect(system.content).toBe('You are a secret persona.');
+    // No date, identity, knowledge, memory, skill or tool instructions.
+    expect(system.content).not.toContain('Current date');
+    expect(system.content).not.toContain('<agent_identity>');
+    expect(system.content).not.toContain('secret knowledge');
+    expect(system.content).not.toContain('secret memory');
+    expect(system.content).not.toContain('<available_skills>');
+    expect(system.content).not.toContain('<tools');
+  });
+
+  it('sends no system message when no manual instruction is configured', async () => {
+    const result = await new MessagesEngine(
+      richParams({ systemRole: undefined, zeroSystemPrompt: true }),
     ).process();
 
     expect(result.messages).toEqual([
       { content: 'Hello', role: 'user' },
       { content: 'Hi there!', role: 'assistant' },
     ]);
-    expect(result.messages.some((message) => message.role === 'system')).toBe(false);
   });
 
   it('drops system rows that arrive with the conversation', async () => {
@@ -64,6 +85,7 @@ describe('MessagesEngine zeroSystemPrompt (pure mode)', () => {
           { content: 'raw system row', id: 'sys-1', role: 'system' },
           ...conversation(),
         ] as UIChatMessage[],
+        systemRole: undefined,
         zeroSystemPrompt: true,
       }),
     ).process();

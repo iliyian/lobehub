@@ -1550,7 +1550,7 @@ export default {
     'Replace outdated tool outputs (overwritten file reads, old browser snapshots, stale command output) with short placeholders in the model context to save tokens. Disable if the assistant needs full historical tool output.',
   'settingChat.enableStaleToolResultTrim.title': 'Trim Stale Tool Results',
   'settingChat.enableZeroSystemPrompt.desc':
-    'Send no system prompt at all: persona, date, model info, knowledge, memory, tool and skill instructions are all skipped. Only the real conversation is sent. Tools and web search are disabled in this mode.',
+    'Skip all automatic system-prompt injection: date, model info, knowledge, memory, tool and skill instructions are omitted; only the real conversation is sent. The agent\'s manually configured instruction (System Prompt) is still injected. Tools and web search are disabled in this mode.',
   'settingChat.enableZeroSystemPrompt.title': 'Zero System Prompt (Pure Mode)',
   'settingChat.enableStreaming.desc':
     'Enable streaming output to display responses in real-time. When disabled, only the complete response is shown.',

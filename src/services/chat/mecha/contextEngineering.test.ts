@@ -1292,6 +1292,7 @@ describe('contextEngineering', () => {
       });
 
       expect(result).toEqual([
+        { content: 'You are a helpful assistant.', role: 'system' },
         { content: 'User message', role: 'user' },
         { content: 'Assistant reply', role: 'assistant' },
       ]);
