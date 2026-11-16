@@ -1264,6 +1264,39 @@ describe('contextEngineering', () => {
       ]);
     });
 
+    it('should send only the conversation when zero system prompt is enabled', async () => {
+      const messages: UIChatMessage[] = [
+        {
+          role: 'user',
+          content: 'User message',
+          createdAt: Date.now(),
+          id: 'test-pure-user',
+          updatedAt: Date.now(),
+        },
+        {
+          role: 'assistant',
+          content: 'Assistant reply',
+          createdAt: Date.now(),
+          id: 'test-pure-assistant',
+          updatedAt: Date.now(),
+        },
+      ];
+
+      const result = await contextEngineering({
+        inputTemplate: 'Processed: {{text}}',
+        messages,
+        model: 'gpt-4',
+        provider: 'openai',
+        systemRole: 'You are a helpful assistant.',
+        zeroSystemPrompt: true,
+      });
+
+      expect(result).toEqual([
+        { content: 'User message', role: 'user' },
+        { content: 'Assistant reply', role: 'assistant' },
+      ]);
+    });
+
     it('should handle input template compilation errors gracefully', async () => {
       const messages: UIChatMessage[] = [
         {
