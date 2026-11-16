@@ -17,6 +17,11 @@ export class ServerContextBuilder implements ContextBuilder {
       input.state,
       input.payload.allowedToolNames,
     );
+    // Pure mode sends no tools at all: function definitions are prompt
+    // scaffolding just like the system message. The engine already skipped
+    // their instructions, so leaving the definitions in would only invite
+    // calls the model was never told how to make.
+    const zeroSystemPrompt = input.state.world?.agent?.chatConfig?.enableZeroSystemPrompt === true;
     const result = await buildServerCallLlmContext({
       ctx: this.ctx,
       llmPayload: input.payload,
@@ -34,7 +39,16 @@ export class ServerContextBuilder implements ContextBuilder {
       },
       preserveThinking: result.preserveThinkingForPayload,
       replayAssistantReasoning: result.shouldReplayAssistantReasoning,
-      resolvedTools: tooling.resolved,
+      resolvedTools: zeroSystemPrompt
+        ? {
+            enabledToolIds: [],
+            executorMap: {},
+            manifestMap: {},
+            promptManifestMap: {},
+            sourceMap: {},
+            tools: [],
+          }
+        : tooling.resolved,
     };
   }
 }
