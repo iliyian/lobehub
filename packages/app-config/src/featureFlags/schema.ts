@@ -66,13 +66,14 @@ export const FeatureFlagsSchema = z.object({
   agent_deferred_hetero_dispatch: FeatureFlagValue.optional(),
 
   /**
-   * Keep the immutable per-operation tool set out of the agent state blob that
-   * is rewritten at every step; it is written once to its own Redis key and
-   * re-attached on load. Off: the blob keeps its inline copy. Server only;
-   * `AGENT_RUNTIME_STRIP_OPERATION_TOOLSET=0|1` overrides it. Array values are
-   * user ids (the operation's owner).
+   * Keep copies the per-operation tool set already holds out of the agent state
+   * blob rewritten at every step (`initialContext.payload.tools`, the manifests
+   * of `activatedStepTools`, the deprecated top-level `expertise` mirror); they
+   * are restored on load. Off: the blob keeps them inline. Server only;
+   * `AGENT_RUNTIME_SLIM_STATE=0|1` overrides it. Array values are user ids (the
+   * operation's owner).
    */
-  agent_runtime_strip_operation_toolset: FeatureFlagValue.optional(),
+  agent_runtime_slim_state: FeatureFlagValue.optional(),
 
   /**
    * Dashboards: monitoring widgets built by the `builtin-dashboard` agent tool,
@@ -90,6 +91,14 @@ export const FeatureFlagsSchema = z.object({
    * tool results. Array values are user ids.
    */
   mcp_apps: FeatureFlagValue.optional(),
+
+  /**
+   * Inbound webhooks wake Agents: MCP Events subscriptions, generic webhooks (the Agent Profile
+   * Webhook tab) and the Automations lists. Off: deliveries are still verified, stored and
+   * acknowledged, but run nothing, and the subscription tools, the Webhook and Automations
+   * entries are hidden. Array values are user ids.
+   */
+  webhook: FeatureFlagValue.optional(),
 
   /**
    * Rollout gate for moving an agent's documents into its dedicated knowledge
@@ -211,13 +220,14 @@ export const DEFAULT_FEATURE_FLAGS: IFeatureFlags = {
   agent_llm_relay: false,
   agent_deferred_init: false,
   agent_deferred_hetero_dispatch: false,
-  agent_runtime_strip_operation_toolset: false,
+  agent_runtime_slim_state: false,
 
   // Off until an admin publishes a user allowlist or flips it to true.
   dashboard: false,
 
   // Off until an admin publishes a user allowlist or flips it to true.
   mcp_apps: false,
+  webhook: false,
   agent_knowledge_space: false,
 
   // Off until an admin publishes a user allowlist or flips it to true.
@@ -276,13 +286,14 @@ export const mapFeatureFlagsEnvToState = (
       userId,
       'agent_deferred_hetero_dispatch',
     ),
-    enableStripOperationToolset: evaluateFeatureFlag(
-      config.agent_runtime_strip_operation_toolset,
+    enableSlimAgentState: evaluateFeatureFlag(
+      config.agent_runtime_slim_state,
       userId,
-      'agent_runtime_strip_operation_toolset',
+      'agent_runtime_slim_state',
     ),
     enableDashboard: evaluateFeatureFlag(config.dashboard, userId, 'dashboard'),
     enableMcpApps: evaluateFeatureFlag(config.mcp_apps, userId, 'mcp_apps'),
+    enableWebhook: evaluateFeatureFlag(config.webhook, userId, 'webhook'),
     enableAgentKnowledgeSpace: evaluateFeatureFlag(
       config.agent_knowledge_space,
       userId,

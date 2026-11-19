@@ -71,6 +71,7 @@ export enum SettingsTabs {
   Agent = 'agent',
   APIKey = 'apikey',
   Appearance = 'appearance',
+  Automations = 'automations',
   Billing = 'billing',
   /** @deprecated Use Appearance instead */
   ChatAppearance = 'chat-appearance',
@@ -101,15 +102,17 @@ export enum SettingsTabs {
   Security = 'security',
   ServiceModel = 'service-model',
   Skill = 'skill',
-
   Stats = 'stats',
+
   Storage = 'storage',
+  SubscriptionAccounts = 'subscription-accounts',
   SystemTools = 'system-tools',
   Tools = 'tools',
   Trash = 'trash',
   /** @deprecated Use ServiceModel instead */
   TTS = 'tts',
   Usage = 'usage',
+  Webhooks = 'webhooks',
 }
 
 /**

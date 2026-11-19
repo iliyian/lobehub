@@ -275,6 +275,8 @@ export const TRPC_NAMESPACE_API_KEY_RULES: Record<string, TrpcNamespaceScopeRule
   // whole-account backup import can overwrite credential-bearing settings,
   // provider/model config and agents
   importer: 'blocked',
+  // Checks and deletion use stored connector credentials to call external MCP servers.
+  inboundWebhook: 'blocked',
   klavis: 'blocked',
   knowledge: rw('knowledge:read', 'knowledge:write'),
   knowledgeBase: rw('knowledge:read', 'knowledge:write'),
@@ -399,6 +401,8 @@ export const TRPC_PROCEDURE_EXTRA_SCOPES: Record<string, ApiKeyScope[]> = {
   'aiAgent.finishLocalHeteroRunFee': AGENT_RUN_SCOPES,
   'aiAgent.scheduleAgentRun': AGENT_RUN_SCOPES,
   'aiAgent.startExecution': AGENT_RUN_SCOPES,
+  'aiAgent.submitWorktreeTurn': AGENT_RUN_SCOPES,
+  'aiAgent.retryWorktreeTurn': AGENT_RUN_SCOPES,
   // a queued follow-up is a deferred composer send: the run that drains it
   // starts a model turn and writes the user message
   'agentSteerQueue.append': AGENT_RUN_SCOPES,
@@ -406,6 +410,7 @@ export const TRPC_PROCEDURE_EXTRA_SCOPES: Record<string, ApiKeyScope[]> = {
   // returns the queued prompts and attachments, i.e. conversation content
   'agentSteerQueue.list': ['chat:read'],
   // thread/message state writes without starting a run
+  'aiAgent.cancelWorktreeTurn': ['chat:write'],
   'aiAgent.createClientGroupAgentTaskThread': ['chat:write'],
   'aiAgent.createClientTaskThread': ['chat:write'],
   'aiAgent.interruptTask': ['chat:write'],

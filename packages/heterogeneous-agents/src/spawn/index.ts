@@ -201,7 +201,16 @@ export {
   sanitizeClaudeCodeDirectArgs,
   sanitizeClaudeCodeDirectEnv,
 } from './claudeCodeDirectEnv';
+export {
+  type ClaudeCodeControlRequest,
+  type ClaudeCodeControlRequestHandle,
+  type ClaudeCodeControlResponse,
+  type ClaudeCodeLiveExit,
+  ClaudeCodeLiveInput,
+  resolveClaudeCodeLiveRuntimeEnd,
+} from './claudeCodeLiveInput';
 export { readClaudeCodeSessionCost } from './claudeCodeSessionCost';
+export { STOP_TASK_ANSWER_TIMEOUT_MS, stopClaudeCodeTask } from './claudeCodeStopTask';
 export {
   ensureClaudeCodeResumeTranscript,
   type EnsureResumeTranscriptReason,

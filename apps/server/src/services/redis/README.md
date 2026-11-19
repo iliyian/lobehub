@@ -10,7 +10,20 @@ callers do not choose a provider, prefix, key, SET options or claim lifetime.
 - `steerQueue`: follow-ups a user queued behind a running agent turn, per topic/thread, held for
   a day. Atomic append (bounded), drain and restore; the runtime drains it into the next turn.
   Writes return `undefined` without Redis, and the caller tells the client to send directly.
+- `heteroControl`: control messages for a running heterogeneous agent session (Claude Code), per
+  operation, handed out through its `waitHeteroSteer` poll. At most once: a claim pops the message
+  and nothing re-queues it; unclaimed past its expiry it reads `expired`, and the run's reported
+  result stays readable for an hour. Writes throw without Redis; reads answer `undefined`.
+- `openapi`: the public REST API's per-caller rate-limit windows (fixed, epoch-aligned) and
+  `Idempotency-Key` records — a five minute in-flight claim, then the first response for 24 hours,
+  per user and hashed key. Every method returns `undefined` without Redis; the REST layer then
+  admits the request (fail open).
 - `linear`: single-use OAuth state for "Connect Linear" (ten minutes, deleted on first read).
+- `gitHubRefs`: the commit a public GitHub ref points at, shared by every user's skill update
+  check for five minutes. `record` replaces it with a commit an import just resolved live.
+  Without Redis each check resolves live.
+- `connectorOAuth`: how each connector OAuth flow ended (account and outcome), for ten minutes,
+  read back by the window that started the flow. `null` without Redis.
 - `agentDocumentIndex`: the agent-document index snapshot and change notes one conversation
   (topic/thread/agent) renders from, for a day. `undefined` without Redis; the runtime then
   takes a fresh snapshot every run.
@@ -47,8 +60,17 @@ Existing raw-client and client-lib consumers remain explicit migration debt in E
 Move them domain by domain; runtime state requires a deployment/keyspace compatibility plan.
 This foundation does not migrate existing runtime, bot or OAuth stores.
 
+- `botDeferred`: how many times each bot message parked behind a busy topic was replayed into a
+  run, one key per origin message for 30 minutes. The deferred-message replay drops a message
+  past its cap; a replay parked again gets its lap back. Reads return `undefined` without Redis,
+  and the replay then proceeds without the cap.
+
 - `botWake`: channel state for passive bot waking — when the bot and its owner last spoke, the
   follow-up window, the silent-wake count (reset when the bot speaks), classifier calls per bot
   per UTC hour, and the per-channel wake scheduler state (updated under a short lock). Channel
   state is written under both the channel and a Discord thread key. Every read returns
   `undefined` without Redis; the caller waits for nothing and falls back to its existing wake.
+
+- `inboundWebhook`: delivery replay claims (24 hours), wake debounce (10 seconds), manual checks
+  (30 seconds), maintenance/sweep slots (one minute). Claims fall back to a process-local map;
+  durable signal uniqueness remains the event deduplication boundary across instances.

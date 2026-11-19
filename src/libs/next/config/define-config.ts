@@ -62,10 +62,17 @@ export function defineConfig(config: CustomNextConfig) {
     '',
   );
 
+  const requiredTracingIncludes = isStandaloneMode
+    ? standaloneConfig.outputFileTracingIncludes!['*']
+    : [FILE_PARSE_WORKER_TRACE];
+
   const nextConfig: NextConfig = {
-    ...(isStandaloneMode
-      ? standaloneConfig
-      : { outputFileTracingIncludes: { '*': [FILE_PARSE_WORKER_TRACE] } }),
+    ...(isStandaloneMode ? standaloneConfig : {}),
+    outputFileTracingIncludes: {
+      ...config.outputFileTracingIncludes,
+      // Deployment-specific assets must not replace the worker or standalone runtime files.
+      '*': [...requiredTracingIncludes, ...(config.outputFileTracingIncludes?.['*'] ?? [])],
+    },
     // Stop `next dev` from auto-injecting the nextjs-agent-rules block into AGENTS.md.
     agentRules: false,
     assetPrefix,
@@ -272,6 +279,10 @@ export function defineConfig(config: CustomNextConfig) {
           ],
           source: '/.well-known/assetlinks.json',
         },
+        {
+          source: '/.well-known/mcp-webhook-receiver.json',
+          headers: [{ key: 'Content-Type', value: 'application/json' }],
+        },
         ...(config.headers ?? []),
       ];
     },
@@ -283,9 +294,6 @@ export function defineConfig(config: CustomNextConfig) {
     },
     ...(config.outputFileTracingExcludes && {
       outputFileTracingExcludes: config.outputFileTracingExcludes,
-    }),
-    ...(config.outputFileTracingIncludes && {
-      outputFileTracingIncludes: config.outputFileTracingIncludes,
     }),
     reactStrictMode: true,
     // Old clients keep their image URLs; App routes take precedence over this fallback.

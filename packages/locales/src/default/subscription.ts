@@ -219,6 +219,9 @@ export default {
   'credits.dedicatedBudget.createTitle': 'New dedicated budget',
   'credits.dedicatedBudget.details.action': 'View details',
   'credits.dedicatedBudget.details.empty': 'No shared members yet',
+  'credits.dedicatedBudget.details.customLimit': 'Custom limit',
+  'credits.dedicatedBudget.details.limitReached': 'Limit reached',
+  'credits.dedicatedBudget.details.noLimit': 'No limit',
   'credits.dedicatedBudget.details.removedShare': 'Spent by removed members',
   'credits.dedicatedBudget.details.title': 'Dedicated budget details',
   'credits.dedicatedBudget.details.total': 'Total spent',
@@ -229,6 +232,10 @@ export default {
   'credits.dedicatedBudget.membersCount_other': '{{count}} members',
   'credits.dedicatedBudget.membersEmpty': 'No shared members yet',
   'credits.dedicatedBudget.membersPlaceholder': 'Select members to share this budget',
+  'credits.dedicatedBudget.memberLimit': 'Per-member limit',
+  'credits.dedicatedBudget.memberLimitHint':
+    'The most each member can use from this budget per billing cycle. Members who reach it move on to their next budget. Leave empty for no limit.',
+  'credits.dedicatedBudget.memberLimitPlaceholder': 'No limit',
   'credits.dedicatedBudget.desc':
     'Carve out shared allowances for groups of members — consumed before their personal quotas',
   'credits.dedicatedBudget.name': 'Name',
@@ -239,6 +246,21 @@ export default {
   'credits.dedicatedBudget.removeConfirm.desc':
     'Shared members will fall back to their own budget immediately after confirmation.',
   'credits.dedicatedBudget.removeConfirm.title': 'Remove this dedicated budget?',
+  'credits.dedicatedBudget.rules.action': 'Member limits',
+  'credits.dedicatedBudget.rules.defaultHint': 'Applies to members without a rule of their own.',
+  'credits.dedicatedBudget.rules.desc':
+    'Cap how much each member can use from this budget per billing cycle. Members who reach their limit move on to their next budget.',
+  'credits.dedicatedBudget.rules.empty':
+    'Any member can use the whole budget. Add a rule to cap each member.',
+  'credits.dedicatedBudget.rules.emptyTitle': 'No member limits yet',
+  'credits.dedicatedBudget.rules.overrideCount_one': '{{count}} custom',
+  'credits.dedicatedBudget.rules.overrideCount_other': '{{count}} custom',
+  'credits.dedicatedBudget.rules.removeConfirm.defaultDesc':
+    'Members without a rule of their own will no longer be capped. Members with their own rule keep it.',
+  'credits.dedicatedBudget.rules.removeConfirm.memberDesc':
+    'This member will follow the rule for all members again.',
+  'credits.dedicatedBudget.rules.removeConfirm.title': 'Remove the limit for {{name}}?',
+  'credits.dedicatedBudget.rules.title': 'Member limits · {{name}}',
   'credits.dedicatedBudget.saveError': 'Failed to save the dedicated budget',
   'credits.dedicatedBudget.saveSuccess': 'Dedicated budget saved',
   'credits.dedicatedBudget.userPanel.label': 'Dedicated budget',
@@ -440,6 +462,18 @@ export default {
   'limitation.workspace.insufficientBudget.upgradeToPro': 'Upgrade to Pro',
   'limitation.workspace.memberBudget.desc':
     'You have reached the personal budget set by this workspace. Contact a workspace admin to adjust your quota — top-up and plan upgrades do not change member limits.',
+  'limitation.workspace.memberBudget.adminDesc':
+    'You have reached your member budget in this workspace. As an admin, you can raise it in budget settings — top-ups and plan upgrades do not change member limits.',
+  'limitation.workspace.memberBudget.notify.action': 'Notify admins',
+  'limitation.workspace.memberBudget.notify.error': "Couldn't notify admins. Please try again.",
+  'limitation.workspace.memberBudget.notify.manage': 'Adjust in budget settings',
+  'limitation.workspace.memberBudget.notify.noAdmin':
+    'This workspace has no other admin to notify.',
+  'limitation.workspace.memberBudget.notify.sent': 'Admins notified',
+  'limitation.workspace.memberBudget.notify.sentHint':
+    'Retry once an admin has raised your budget.',
+  'limitation.workspace.memberBudget.notifyDesc':
+    'You have reached the member budget this workspace set for you. Let the workspace admins know so they can raise it — top-ups and plan upgrades do not change member limits.',
   'limitation.workspace.memberBudget.retry': 'Retry',
   'limitation.workspace.memberBudget.title': 'Member budget reached',
   'limitation.hobby.action': 'Configured, continue chatting',
@@ -550,6 +584,7 @@ export default {
   'plans.compare.notIncluded': 'Not included',
   'plans.compare.monthlySpend': 'Monthly limit',
   'plans.compare.monthlySpend.desc': 'Resets at the start of each billing month',
+  'plans.compare.monthlySpend.runs': 'About {{runs}} agent tasks',
   'plans.compare.rolling5hSpend': '5-hour limit',
   'plans.compare.rolling7dSpend': 'Weekly limit',
   'plans.compare.sandboxStorage': 'Cloud sandbox storage',
@@ -587,6 +622,10 @@ export default {
   'plans.legacy.upgradeOnly': 'A legacy plan can only be upgraded to a higher-tier plan',
   'plans.limits.agentMemory.unavailable': 'Agent memory',
   'plans.limits.agentMemory.unlimited': 'Agent memory',
+  'plans.limits.agentRunCredit': '{{value}} monthly agent task credit',
+  'plans.limits.agentRunCredit.runs': 'About {{runs}} agent tasks a month',
+  'plans.limits.agentRunCredit.tooltip':
+    'Pays only the per-task fee of agent tasks. Models on your own API key cost nothing more; LobeHub-hosted models draw on your free allowance and top-ups.',
   'plans.limits.agentRunFee': '{{value}} per agent task',
   'plans.limits.agentRunFee.tooltip':
     'Charged from your balance when an agent task you start finishes, on top of its model usage. Tasks that fail, or that you stop within 30 seconds, are free.',
@@ -600,6 +639,8 @@ export default {
   'plans.limits.earlyAccess.unlimited': 'Early access to new features',
   'plans.limits.embeddingVectors': '{{value}} vector entries',
   'plans.limits.fileStorage': '{{value}} file storage',
+  'plans.limits.monthlyCreditGrant': '{{value}} monthly credit',
+  'plans.limits.monthlyCreditGrant.runs': 'About {{runs}} agent tasks a month',
   'plans.limits.monthlySpend.tooltip':
     'Usage across your billing month has a limit too. It resets when the next billing month starts.',
   'plans.limits.rolling5hSpend': '5-hour limit',
@@ -696,6 +737,8 @@ export default {
   'plans.plan.enterprise.title': 'Enterprise',
   'plans.plan.free.desc': 'For first-time users',
   'plans.plan.free.title': 'Free',
+  'plans.plan.basic.desc': 'For running agents with your own model API keys',
+  'plans.plan.basic.title': 'Basic',
   'plans.plan.hobby.desc': 'For users with their own API who pay as they go',
   'plans.plan.hobby.title': 'Hobby',
   'plans.plan.max.title': 'Max',
@@ -975,6 +1018,8 @@ export default {
   'usage.window.resetsIn': 'Resets in {{duration}}',
   'usage.window.rule.plan5h': '5-hour limit',
   'usage.window.rule.plan7d': 'Weekly limit',
+  'usage.window.rule.agentRunMonth': 'Monthly agent task limit',
+  'usage.window.rule.freeMonth': 'Free monthly limit',
   'usage.window.rule.planMonth': 'Monthly limit',
   'creditUsageReminder.exhausted': "This billing cycle's subscription usage has run out",
   'creditUsageReminder.window.exhausted': '{{rule}} reached',
