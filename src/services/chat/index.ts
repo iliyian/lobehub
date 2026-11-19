@@ -280,7 +280,7 @@ class ChatService {
       initialContext: options?.initialContext,
       inputTemplate: pureMode ? undefined : chatConfig.inputTemplate,
       discoveryManifests: pureMode ? undefined : discoveryManifests,
-      manifests: pureMode ? [] : enabledManifests
+      manifests: pureMode ? [] : enabledManifests,
       messages: messagesForContext,
       model: payload.model,
       plugins: pureMode ? [] : plugins,
