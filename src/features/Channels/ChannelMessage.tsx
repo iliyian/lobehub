@@ -25,6 +25,7 @@ import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import AgentAvatar from '@/components/AgentAvatar';
+import { HoverFollowAgentAvatar } from '@/components/AgentAvatar/HoverFollowAgentAvatar';
 import CollapsibleContent from '@/components/CollapsibleContent';
 import AgentProfilePopup from '@/features/AgentProfileCard/AgentProfilePopup';
 import { ChatItem } from '@/features/Conversation/ChatItem';
@@ -44,6 +45,8 @@ import { ReplyFailureCard } from './ReplyFailure';
 import { showsReplyQuote } from './replyQuote';
 import type { ReplyTopic } from './ReplyTopicPanel';
 import { ReplyWorks } from './ReplyWorks';
+import { shareRefusalOf } from './shareRefusal';
+import { ShareRefusalNotice } from './ShareRefusalNotice';
 import { styles } from './styles';
 import type { ChannelThreadDraft } from './threadDraft';
 import { ThreadPreviewCard } from './ThreadPreviewCard';
@@ -141,6 +144,7 @@ export const ChannelMessage = ({
       attachments: detail.attachments.filter((file) => message.fileIds.includes(file.id)),
     });
   const isRequest = message.author.type === 'user' && !isRoot;
+  const shareRefusal = isRequest && !delivery ? shareRefusalOf(detail, message.id) : undefined;
   const agentAuthorId = message.author.type === 'agent' ? message.author.id : null;
   const agentMember = agentAuthorId
     ? detail.members.find((member) => member.agentId === agentAuthorId)
@@ -232,7 +236,12 @@ export const ChannelMessage = ({
           title: message.author.name || t('deletedMember'),
         }}
         belowMessage={
-          delivery ?? (isRequest ? <MessageRoutingStatus message={message} /> : undefined)
+          delivery ??
+          (shareRefusal ? (
+            <ShareRefusalNotice {...shareRefusal} />
+          ) : isRequest ? (
+            <MessageRoutingStatus message={message} />
+          ) : undefined)
         }
         customAvatarRender={(_, avatar) => (
           <Flexbox {...stylex.props(styles.messageAvatar)}>
@@ -250,11 +259,10 @@ export const ChannelMessage = ({
                 }}
               >
                 <span style={{ cursor: 'pointer', display: 'inline-flex' }}>
-                  <AgentAvatar
+                  <HoverFollowAgentAvatar
                     agentId={agentAuthorId}
                     avatar={message.author.avatar}
                     name={message.author.name}
-                    shape={'circle'}
                     size={36}
                   />
                 </span>

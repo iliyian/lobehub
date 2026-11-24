@@ -39,6 +39,7 @@ export class ServerContextBuilder implements ContextBuilder {
         tools: tooling.resolved.tools,
       }),
       messages: result.processedMessages,
+      getToolActivationContext: result.getToolActivationContext,
       modelParameters: {
         ...result.resolvedExtendParams,
         ...(typeof result.stream === 'boolean' && { stream: result.stream }),

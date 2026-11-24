@@ -9,6 +9,7 @@ import {
 } from '@lobechat/heterogeneous-agents/claudeCodePermission';
 import type {
   AgentStreamEvent,
+  AntigravityLiveInput,
   ClaudeAgentSdkSession,
   ClaudeCodeLiveInput,
 } from '@lobechat/heterogeneous-agents/spawn';
@@ -17,7 +18,7 @@ import type { HeteroPermissionMode } from '@lobechat/types';
 import { isHeteroPermissionMode } from '@lobechat/types';
 
 /*
- * Claude Code permission modes on this machine (Better Coding Experience lab).
+ * Claude Code permission modes on this machine.
  * The CLI asks over stdio (`--permission-prompt-tool stdio`, see the driver),
  * the SDK through `canUseTool`; both raise their cards on the run's
  * AskUserBridge, so the renderer answers them like any other question card
@@ -37,10 +38,11 @@ export const attachCliPermissionPrompts = ({
 }: {
   bridge: AskUserBridge;
   emit: (event: AgentStreamEvent) => void;
-  live: ClaudeCodeLiveInput;
+  live: AntigravityLiveInput | ClaudeCodeLiveInput;
   operationId: string;
   permissionMode: HeteroPermissionMode;
 }): void => {
+  if (!('sendControlRequest' in live)) return;
   const isRoot = isRunningAsRoot();
   attachClaudeCodePermissionResponder(live, {
     ask: askThroughBridge(bridge),
@@ -66,7 +68,7 @@ export const attachCliPermissionPrompts = ({
 
 /** The parts of a local run a control request reaches: the SDK query, or the CLI stdin. */
 interface ControllableSession {
-  liveInput?: ClaudeCodeLiveInput;
+  liveInput?: AntigravityLiveInput | ClaudeCodeLiveInput;
   sdkSession?: ClaudeAgentSdkSession;
 }
 
@@ -81,7 +83,8 @@ export const setSessionPermissionMode = async (
 ): Promise<HeteroPermissionMode> => {
   if (session?.sdkSession) return session.sdkSession.setPermissionMode(mode);
   const live = session?.liveInput;
-  if (!live) throw new Error('This run cannot switch its permission mode');
+  if (!live || !('sendControlRequest' in live))
+    throw new Error('This run cannot switch its permission mode');
   return setClaudeCodePermissionMode((request) => live.sendControlRequest(request), mode, {
     isRoot: isRunningAsRoot(),
   });
@@ -97,6 +100,7 @@ export const stopSessionBackgroundTask = async (
 ): Promise<void> => {
   if (session?.sdkSession) return session.sdkSession.stopTask(taskId);
   const live = session?.liveInput;
-  if (!live) throw new Error('This run cannot stop a single background task');
+  if (!live || !('sendControlRequest' in live))
+    throw new Error('This run cannot stop a single background task');
   await stopClaudeCodeTask((request) => live.sendControlRequest(request), taskId);
 };
