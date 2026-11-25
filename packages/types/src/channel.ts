@@ -3,8 +3,14 @@ import {
   LocalExecutionHeterogeneousAgentTypeSchema,
   REMOTE_HETEROGENEOUS_AGENT_CONFIGS,
 } from './agent/heterogeneousAgent';
+import type { ChannelAgentAccessCard } from './agentAccess';
 import type { ChannelAsk, ChannelMessageKind } from './channelAsk';
-import type { ChannelConnectorRequest, ChannelDeviceGrantCard } from './channelMessageCard';
+import type { ChannelPublicMember } from './channelMember';
+import type {
+  ChannelConnectorRequest,
+  ChannelDeviceGrantCard,
+  ChannelMessageSurface,
+} from './channelMessageCard';
 import type { ContactCard, ContactCardType, ContactUserProfile } from './contact';
 import { getWorkingDirEffectivePath } from './device';
 import type { BotWakeKind } from './signal';
@@ -187,8 +193,9 @@ export type ChannelMessageMetadata = Record<string, unknown> & {
  *   Agent's session where it stopped.
  * - `retry`: run it again from the start (`channel.retryJob`).
  * - `switch_device`: the device was the cause; pick another one for the Agent, then retry.
+ * - `request_access`: the requester may not use the Agent; ask its owner (`channel.requestAgentAccess`).
  */
-export type ChannelReplyErrorAction = 'resume' | 'retry' | 'switch_device';
+export type ChannelReplyErrorAction = 'request_access' | 'resume' | 'retry' | 'switch_device';
 
 /**
  * `metadata.replyError` of an Agent's message that stands in its reply slot (the request and the
@@ -435,6 +442,9 @@ export interface ChannelJobWake {
 
 /** Why a queued job cannot start yet. Typed so clients never infer it from error text. */
 export type ChannelJobBlockCode =
+  /** The requester may not use the Agent: its owner was asked, or declined (a failed job). */
+  | 'access_denied'
+  | 'access_request_pending'
   /** A deferred `followup` waiting for the message's primary responder to settle. */
   | 'awaiting_primary'
   | 'device_approval_pending'
@@ -487,29 +497,6 @@ export interface ChannelReadMessagesParams {
    * message instead of the run's request cutoff. Omit for the run's own conversation.
    */
   threadId?: string;
-}
-
-/** One emoji on a message: who left it, by member, in the order they did. */
-export interface ChannelMessageReaction {
-  count: number;
-  /** A Unicode emoji. */
-  emoji: string;
-  /** People and Agents alike, by their member in the Channel. */
-  memberIds: string[];
-}
-
-/** An Agent adding or removing its own reaction on a message of its current conversation. */
-export interface ChannelReactParams {
-  emoji: string;
-  messageId: string;
-  /** The Thread `readMessages({ threadId })` returned the message from. */
-  threadId?: string;
-}
-
-export interface ChannelReacted {
-  added: boolean;
-  emoji: string;
-  messageId: string;
 }
 
 export interface ChannelReadMessageParams {
@@ -935,27 +922,6 @@ export interface ChannelListItem {
   workspaceId: string | null;
 }
 
-/** Where an Agent member runs in this Channel, readable by every member. */
-export interface ChannelMemberEnvironmentPreview {
-  deviceId: string | null;
-  /** The device's friendly name, else its hostname; null when the device row is gone. */
-  deviceName: string | null;
-  /**
-   * The device owner's approval for a private workspace device picked in this Channel;
-   * absent when the device needs none (public, personal, or the Agent's own setting).
-   */
-  grant?: ChannelMemberDeviceGrant;
-  workingDirectory: string | null;
-}
-
-/** One Agent member's grant on someone's private device, as members of the Channel see it. */
-export interface ChannelMemberDeviceGrant {
-  /** Who decides it; the client offers approve / reject / revoke to this person only. */
-  deviceOwnerId: string;
-  id: string;
-  status: ChannelMemberGrantStatus;
-}
-
 /** A request on one of the caller's private devices, as the device owner reviews it. */
 export interface ChannelDeviceGrantItem {
   agentId: string | null;
@@ -974,29 +940,9 @@ export interface ChannelDeviceGrantItem {
   workingDirectory: string;
 }
 
-export interface ChannelPublicMember {
-  actorType: ChannelMemberActorType;
-  agentId: string | null;
-  avatar: string | null;
-  description: string | null;
-  /** Agent members only; null when the Channel sets no device or directory for it. */
-  environment?: ChannelMemberEnvironmentPreview | null;
-  id: string;
-  /** The member who added this one; null when they joined on their own or the adder is unknown. */
-  invitedBy: string | null;
-  joinedAt: Date;
-  /** An Agent that answers only when @mentioned; see `ChannelMemberConfig.muted`. */
-  muted?: boolean;
-  name: string | null;
-  role: ChannelMemberRole | null;
-  status: ChannelMemberStatus;
-  userAvatar: string | null;
-  userId: string | null;
-  userName: string | null;
-  username: string | null;
-}
-
 export interface ChannelPublicMessage {
+  /** An Agent's card asking its owner (the reader) to let someone use it, with its status. */
+  agentAccess?: ChannelAgentAccessCard | null;
   agentId: string | null;
   /** An Agent's question with options, on an `ask` message; null otherwise. */
   ask?: ChannelAsk | null;
@@ -1042,6 +988,10 @@ export interface ChannelPublicMessage {
   /** The Agent topic behind a reply, only when the viewer ran it (owns that topic). */
   sourceTopicId?: string | null;
   sourceTopicTitle?: string | null;
+  /** Cards the Agent drew in this reply (A2UI), in the order it drew them. Empty on requests. */
+  surfaces?: ChannelMessageSurface[];
+  /** With `surfaces`: how much of `content` is the reply's own text; the rest is their text form. */
+  surfacesBodyLength?: number;
   threadId: string | null;
   userId: string | null;
   /** The Agent that relayed this request (or answered it, on a receipt); null otherwise. */

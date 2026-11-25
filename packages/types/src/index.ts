@@ -1,4 +1,5 @@
 export * from './agent';
+export * from './agentAccess';
 export * from './agentAccount';
 export * from './agentAvailability';
 export * from './agentDelivery';
@@ -19,8 +20,10 @@ export * from './auth';
 export * from './brief';
 export * from './channel';
 export * from './channelAsk';
+export * from './channelMember';
 export * from './channelMessage';
 export * from './channelMessageCard';
+export * from './channelReaction';
 export * from './chunk';
 export * from './contact';
 export * from './conversation';
