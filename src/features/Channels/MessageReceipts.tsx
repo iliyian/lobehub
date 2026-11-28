@@ -19,6 +19,9 @@ import { useOpenReplyAgent } from './useOpenReplyAgent';
 /** Failure categories with their own text; a shared Agent's visitor learns why only from these. */
 const RECEIPT_ERROR_KEYS = {
   [ChatErrorType.ChannelAttachmentUnavailable]: 'receipt.errorAttachmentUnavailable',
+  [ChatErrorType.ShareAttachmentTooLarge]: 'receipt.errorShareAttachmentTooLarge',
+  [ChatErrorType.ShareFileStorageExceeded]: 'receipt.errorShareFileStorage',
+  [ChatErrorType.ShareFundingExhausted]: 'receipt.errorShareFundingExhausted',
   [ChatErrorType.ShareHeteroDeviceUnavailable]: 'receipt.errorShareHeteroDevice',
   [ChatErrorType.ShareHeterogeneousAgentUnsupported]: 'receipt.errorShareHeteroUnsupported',
   [ChatErrorType.ShareMessageLimitExceeded]: 'receipt.errorShareMessageLimit',

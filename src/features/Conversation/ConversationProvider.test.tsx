@@ -13,6 +13,10 @@ import ChatList from './ChatList';
 import { ConversationProvider } from './ConversationProvider';
 import { dataSelectors, useConversationStore, useConversationStoreApi } from './store';
 
+vi.mock('./hooks/useFetchMcpElicitations', () => ({
+  useFetchMcpElicitations: () => ({ data: undefined }),
+}));
+
 const chatListMocks = vi.hoisted(() => ({
   isStreaming: false,
   refreshError: {
@@ -64,7 +68,10 @@ vi.mock('@/features/WideScreenContainer', () => ({
 
 vi.mock('@/hooks/useFetchAvailableAgents', () => ({ useFetchAvailableAgents: vi.fn() }));
 vi.mock('@/hooks/useFetchMemoryForTopic', () => ({ useFetchTopicMemories: vi.fn() }));
-vi.mock('@/hooks/useFetchNotebookDocuments', () => ({ useFetchNotebookDocuments: vi.fn() }));
+vi.mock('@/store/notebook', () => ({
+  useNotebookStore: (selector: (state: { useFetchDocuments: () => void }) => unknown) =>
+    selector({ useFetchDocuments: vi.fn() }),
+}));
 
 vi.mock('@/libs/swr', () => ({
   mutate: vi.fn(),
@@ -290,6 +297,7 @@ describe('ConversationProvider', () => {
       scrollTo: vi.fn(),
       scrollToEnd: vi.fn(),
       scrollToIndex: vi.fn(),
+      scrollToMessage: vi.fn(),
     };
 
     act(() => {

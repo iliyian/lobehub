@@ -3,6 +3,7 @@ import { agentDocumentIndex } from './agentDocumentIndex';
 import { agentIdentity } from './agentIdentity';
 import { agentRunSlots } from './agentRunSlots';
 import { agentSignal } from './agentSignal';
+import { agentToolResults } from './agentToolResults';
 import { botDeferred } from './botDeferred';
 import { botReply } from './botReply';
 import { botWake } from './botWake';
@@ -13,6 +14,7 @@ import { gitHubRefs } from './gitHubRefs';
 import { heteroControl } from './heteroControl';
 import { inboundWebhook } from './inboundWebhook';
 import { linear } from './linear';
+import { mcpDeviceRelay } from './mcpDeviceRelay';
 import { openapi } from './openapi';
 import { pageCollab } from './pageCollab';
 import { qqPassive } from './qqPassive';
@@ -29,6 +31,7 @@ export const redisService = {
   agentDocumentIndex,
   agentIdentity,
   agentRunSlots,
+  agentToolResults,
   agentSignal,
   botDeferred,
   botReply,
@@ -40,6 +43,7 @@ export const redisService = {
   heteroControl,
   inboundWebhook,
   linear,
+  mcpDeviceRelay,
   openapi,
   pageCollab,
   qqPassive,
